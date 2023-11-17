@@ -27,11 +27,12 @@ services:
       - "3001:3001"
     volumes:
       - ./backend:/app
+      - /app/node_modules
     depends_on:
       - database
     networks:
       - docker-learning-network
-    
+
   database:
     restart: unless-stopped
     container_name: docker-learning-database
@@ -42,7 +43,7 @@ services:
       - mongodb_data:/data/db
     networks:
       - docker-learning-network
-  
+
   nginx:
     image: nginx:stable-alpine
     container_name: docker-learning-nginx
@@ -63,4 +64,3 @@ volumes:
 networks:
   docker-learning-network:
     driver: bridge
-      
