@@ -1,7 +1,9 @@
 version: "3.8"
 
 services:
-  frontend: 
+  frontend:
+    container_name: docker-learning-frontend
+    restart: unless-stopped
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -10,4 +12,55 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - docker-learning-network
+
+  backend:
+    container_name: docker-learning-backend
+    restart: unless-stopped
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - database
+    networks:
+      - docker-learning-network
+    
+  database:
+    restart: unless-stopped
+    container_name: docker-learning-database
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - docker-learning-network
+  
+  nginx:
+    image: nginx:stable-alpine
+    container_name: docker-learning-nginx
+    depends_on:
+      - frontend
+      - backend
+      - database
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf.prod:/etc/nginx/nginx.conf
+    networks:
+      - docker-learning-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  docker-learning-network:
+    driver: bridge
       
